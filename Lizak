@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MX = 2e6 + 9;
+pair<int, int> price[MX];
+int tab[MX];
+
+void pricing(int l, int r, int val) {
+    if (val < 0) return; // Base case to stop recursion
+    price[val] = {l, r};
+    if (tab[l] == 1 && tab[r] == 1) {
+        pricing(l + 1, r - 1, val - 2);
+    } else if (tab[l] == 2) {
+        pricing(l + 1, r, val - 2);
+    } else {
+        pricing(l, r - 1, val - 2);
+    }
+}
+
+int main() {
+    int n, k, a;
+    string cl;
+    cin >> n >> k;
+    cin >> cl;
+
+    int left_most = MX, right_most = -1;
+    int sum = 0;
+
+    for (int i = 0; i < n; ++i) {
+        price[i+1] = {-1,-1};
+        price[i+1+n] = {-1,-1};
+        if (cl[i] == 'T') {
+            tab[i] = 2;
+        } else {
+            left_most = min(left_most, i);
+            right_most = max(right_most, i);
+            tab[i] = 1;
+        }
+        sum += tab[i];
+    }
+
+    pricing(0, n - 1, sum);
+
+    int val = sum;
+    if (left_most < n - 1 - right_most) {
+        pricing(left_most + 1, n - 1, val - 2 * left_most - 1);
+    } else {
+        pricing(0, right_most - 1, val - 2 * (n - 1 - right_most) - 1);
+    }
+
+    for (int i = 0; i < k; ++i) {
+        cin >> a;
+        if (a > sum || price[a] == make_pair(-1, -1)) {
+            cout << "NIE" << endl;
+        } else {
+            cout << price[a].first+1 << " " << price[a].second+1 << endl;
+        }
+    }
+
+    return 0;
+}
